@@ -87,18 +87,20 @@ jobs:
           }
 
       # آیکون اصلی برنامه از SVG مخزن ساخته می‌شود
-      - name: Install Electron toolchain and icon renderer
-        run: npm install --no-save electron electron-builder sharp
+      - name: Install Electron toolchain and icon converters
+        run: npm install --no-save electron electron-builder sharp png-to-ico
 
-      - name: Generate Windows app icon
+      - name: Generate Windows app icons
         shell: pwsh
         run: |
           if (!(Test-Path build\icon.svg)) {
             throw "build/icon.svg is missing"
           }
           New-Item -ItemType Directory -Force build | Out-Null
-          node -e "require('sharp')('build/icon.svg').resize(256, 256).png().toFile('build/icon.png').then(() => console.log('App icon generated')).catch(e => { console.error(e); process.exit(1); })"
+          node -e "require('sharp')('build/icon.svg').resize(256, 256).png().toFile('build/icon.png').then(() => console.log('PNG icon generated')).catch(e => { console.error(e); process.exit(1); })"
           if (!(Test-Path build\icon.png)) { throw "Failed to generate build/icon.png" }
+          node -e "require('png-to-ico')('build/icon.png').then(buf => require('fs').writeFileSync('build/icon.ico', buf)).then(() => console.log('ICO icon generated')).catch(e => { console.error(e); process.exit(1); })"
+          if (!(Test-Path build\icon.ico)) { throw "Failed to generate build/icon.ico" }
 
       - name: Package Windows installer + portable
         run: npx electron-builder --win --config electron-builder.yml --publish never
