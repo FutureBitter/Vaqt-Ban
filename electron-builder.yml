@@ -2,7 +2,6 @@ appId: com.vaqtban.desktop
 productName: Vaqtban
 copyright: "Vaqtban HR Suite"
 
-# بدون نیاز به ویرایش package.json؛ فراداده دسکتاپ اینجاست
 extraMetadata:
   name: vaqtban-desktop
   version: 1.2.0
@@ -21,10 +20,11 @@ files:
   - .next/standalone/**/*
   - .next/static/**/*
   - public/**/*
+  - build/icon.ico
   - build/icon.png
 
 win:
-  icon: build/icon.png
+  icon: build/icon.ico
   target:
     - target: nsis
       arch: [x64]
@@ -37,5 +37,5 @@ nsis:
   deleteAppDataOnUninstall: false
   createDesktopShortcut: true
   shortcutName: "وقت‌بان"
-  installerIcon: build/icon.png
-  uninstallerIcon: build/icon.png
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
