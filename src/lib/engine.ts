@@ -54,6 +54,8 @@ export interface DayStat {
   lostMin: number; // تاخیر + تعجیل + خروج موقت
   unpaidLostMin: number; // پس از پوشش مرخصی ساعتی
   leaveMin: number; // مرخصی ساعتی روز
+  paidLeaveMin: number; // مرخصی ساعتی باحقوق
+  paidDailyLeave: boolean; // مرخصی روزانه باحقوق
   firstIn: number | null;
   lastOut: number | null;
   openWork: boolean;
@@ -109,8 +111,13 @@ export function computeDay(opts: {
   const openExit = exitSessions.some((s) => s.endMs == null);
 
   const dailyLeave = opts.leaves.some((l) => l.date === opts.date && l.daily);
-  const leaveMin = opts.leaves
-    .filter((l) => l.date === opts.date && !l.daily)
+  const paidDailyLeave = opts.leaves.some(
+    (l) => l.date === opts.date && l.daily && l.category !== "بدون حقوق"
+  );
+  const hourlyLeaves = opts.leaves.filter((l) => l.date === opts.date && !l.daily);
+  const leaveMin = hourlyLeaves.reduce((a, l) => a + l.minutes, 0);
+  const paidLeaveMin = hourlyLeaves
+    .filter((l) => l.category !== "بدون حقوق")
     .reduce((a, l) => a + l.minutes, 0);
 
   // وضعیت روز
@@ -163,6 +170,8 @@ export function computeDay(opts: {
     lostMin,
     unpaidLostMin,
     leaveMin,
+    paidLeaveMin,
+    paidDailyLeave,
     firstIn,
     lastOut,
     openWork,
@@ -323,9 +332,9 @@ export function computePayroll(opts: {
   // حضور کامل = نرخ روزانه، حضور ناقص = نسبت دقایق کار به موظفی همان روز.
   // مرخصی روزانه باحقوق، معادل یک روز کامل محسوب می‌شود.
   const earnedBaseRaw = agg.days.reduce((sum, day) => {
-    if (day.status === "leave") return sum + dailyRate;
+    if (day.status === "leave") return sum + (day.paidDailyLeave ? dailyRate : 0);
     if (day.status !== "present" || day.expectedMin <= 0) return sum;
-    const paidMinutes = Math.min(day.netWorkedMin, day.expectedMin);
+    const paidMinutes = Math.min(day.netWorkedMin + day.paidLeaveMin, day.expectedMin);
     return sum + (paidMinutes / day.expectedMin) * dailyRate;
   }, 0);
   const earnedBase = Math.round(earnedBaseRaw);
