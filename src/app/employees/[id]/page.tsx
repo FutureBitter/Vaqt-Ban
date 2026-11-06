@@ -493,7 +493,7 @@ async function FinanceTab({
       <div className="grid grid-cols-3 gap-3">
         <Metric label="افزایش‌ها" value={`${money(sum("bonus"))} تومان`} tone="up" />
         <Metric label="کسورات" value={`${money(sum("deduction"))} تومان`} tone={sum("deduction") > 0 ? "down" : "default"} />
-        <Metric label="پرداخت علی‌الحساب" value={`${money(sum("advance"))} تومان` tone={sum("advance") > 0 ? "down" : "default"} />
+        <Metric label="پرداخت علی‌الحساب" value={`${money(sum("advance"))} تومان`} tone={sum("advance") > 0 ? "down" : "default"} />
       </div>
       <Card padded={false} className="overflow-hidden">
         <div className="px-5 pt-5">
