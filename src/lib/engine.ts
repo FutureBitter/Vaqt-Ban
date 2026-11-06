@@ -319,10 +319,20 @@ export function computePayroll(opts: {
     (overtimeMin / 60) * hourlyRate * (settings.overtimeMultiplier / 100)
   );
 
-  const absenceDed = Math.round(t.absentDays * dailyRate);
-  const lostDed = settings.deductLostTime
-    ? Math.round((t.unpaidLostMin / 60) * hourlyRate)
-    : 0;
+  // حقوق پایه فقط بر اساس کارکرد واقعی هر روز کسب می‌شود:
+  // حضور کامل = نرخ روزانه، حضور ناقص = نسبت دقایق کار به موظفی همان روز.
+  // مرخصی روزانه باحقوق، معادل یک روز کامل محسوب می‌شود.
+  const earnedBaseRaw = agg.days.reduce((sum, day) => {
+    if (day.status === "leave") return sum + dailyRate;
+    if (day.status !== "present" || day.expectedMin <= 0) return sum;
+    const paidMinutes = Math.min(day.netWorkedMin, day.expectedMin);
+    return sum + (paidMinutes / day.expectedMin) * dailyRate;
+  }, 0);
+  const earnedBase = Math.round(earnedBaseRaw);
+
+  // کسری حضور و غیبت قبلاً در حقوق کسب‌شده لحاظ شده‌اند؛ دوباره کسر نمی‌شوند.
+  const absenceDed = 0;
+  const lostDed = 0;
 
   const bonusSum = opts.adjustments
     .filter((a) => a.kind === "bonus")
@@ -336,11 +346,11 @@ export function computePayroll(opts: {
 
   const additions = overtimePay + bonusSum;
   const subtractions = absenceDed + lostDed + deductionSum + advanceSum;
-  const gross = opts.baseSalary + additions;
+  const gross = earnedBase + additions;
   const net = Math.max(0, gross - subtractions);
 
   return {
-    base: opts.baseSalary,
+    base: earnedBase,
     dailyRate: Math.round(dailyRate),
     hourlyRate: Math.round(hourlyRate),
     presentDays: t.presentDays,
