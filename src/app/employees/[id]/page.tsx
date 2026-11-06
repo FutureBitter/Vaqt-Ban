@@ -322,16 +322,16 @@ async function MonthTab({
           icon={<Wallet className="size-4" />}
         />
         <div className="space-y-1.5 text-[13px]">
-          <Row k="حقوق پایه" v={money(b.base)} />
+          <Row k="حقوق کسب‌شده بر اساس کارکرد" v={money(b.base)} />
           <Row k={`اضافه‌کاری (${hm(b.overtimeMin)} × نرخ ساعتی × ${140}٪)`} v={money(b.overtimePay)} plus hidden={b.overtimePay === 0} />
           <Row k={`افزایش‌ها (${bundle.adjustments.filter((a) => a.kind === "bonus").length} مورد)`} v={money(b.bonusSum)} plus hidden={b.bonusSum === 0} />
           <Row k={`کسر غیبت (${b.absentDays} روز)`} v={money(b.absenceDed)} minus hidden={b.absenceDed === 0} />
           <Row k={`کسر تاخیر/تعجیل/خروج (${hm(b.unpaidLostMin)})`} v={money(b.lostDed)} minus hidden={b.lostDed === 0} />
           <Row k="کسورات و جرائم" v={money(b.deductionSum)} minus hidden={b.deductionSum === 0} />
-          <Row k="مساعده و وام" v={money(b.advanceSum)} minus hidden={b.advanceSum === 0} />
+          <Row k="پرداخت‌های علی‌الحساب ثبت‌شده" v={money(b.advanceSum)} minus hidden={b.advanceSum === 0} />
         </div>
         <div className="mt-4 flex items-center justify-between rounded-xl bg-zinc-900 px-4 py-3 text-white">
-          <span className="text-[12px] font-bold">خالص قابل پرداخت</span>
+          <span className="text-[12px] font-bold">مانده قابل پرداخت</span>
           <span className="text-[19px] font-extrabold">{money(b.net)} <span className="text-[10px] font-medium text-zinc-300">تومان</span></span>
         </div>
         <div className="mt-4">
@@ -470,7 +470,7 @@ async function SessionsTab({
 const ADJ_META: Record<string, { label: string; tone: "green" | "rose" | "amber" }> = {
   bonus: { label: "افزایش", tone: "green" },
   deduction: { label: "کسری", tone: "rose" },
-  advance: { label: "مساعده", tone: "amber" },
+  advance: { label: "پرداخت علی‌الحساب", tone: "amber" },
 };
 
 async function FinanceTab({
@@ -493,13 +493,13 @@ async function FinanceTab({
       <div className="grid grid-cols-3 gap-3">
         <Metric label="افزایش‌ها" value={`${money(sum("bonus"))} تومان`} tone="up" />
         <Metric label="کسورات" value={`${money(sum("deduction"))} تومان`} tone={sum("deduction") > 0 ? "down" : "default"} />
-        <Metric label="مساعده و وام" value={`${money(sum("advance"))} تومان`} tone={sum("advance") > 0 ? "down" : "default"} />
+        <Metric label="پرداخت علی‌الحساب" value={`${money(sum("advance"))} تومان` tone={sum("advance") > 0 ? "down" : "default"} />
       </div>
       <Card padded={false} className="overflow-hidden">
         <div className="px-5 pt-5">
           <CardHeader
             title={`آیتم‌های مالی ${monthLabel(jy, jm)}`}
-            desc="پاداش، کسری و مساعده‌ای که در فیش همین ماه لحاظ می‌شود"
+            desc="پاداش، کسری و پرداخت‌های علی‌الحساب که در مانده حقوق همین ماه لحاظ می‌شوند"
             actions={
               <div className="flex items-center gap-2">
                 <MonthNav jy={jy} jm={jm} basePath={baseTabPath("finance")} />
