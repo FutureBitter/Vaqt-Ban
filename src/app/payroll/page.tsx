@@ -43,7 +43,7 @@ export default async function PayrollPage({
     [`فیش حقوق ${monthLabel(jy, jm)} — ${settings.orgName}`],
     [],
     [
-      "کد", "نام", "حقوق پایه", "حضور (روز)", "غیبت (روز)", "مرخصی",
+      "کد", "نام", "حقوق کسب‌شده", "حضور (روز)", "غیبت (روز)", "مرخصی",
       "کارکرد خالص (دقیقه)", "اضافه‌کاری (دقیقه)", "مبلغ اضافه‌کاری",
       "کسر زمان (دقیقه)", "مبلغ کسر زمان", "کسر غیبت", "افزایش‌ها", "کسورات", "مساعده", "خالص", "وضعیت",
     ],
@@ -83,10 +83,10 @@ export default async function PayrollPage({
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Metric label="جمع حقوق پایه" value={`${money(totalBase)} تومان`} />
+        <Metric label="جمع حقوق کسب‌شده" value={`${money(totalBase)} تومان`} />
         <Metric label="جمع افزایش‌ها (اضافه‌کاری و پاداش)" value={`${money(totalAdd)} تومان`} tone="up" />
         <Metric label="جمع کسورات" value={`${money(totalSub)} تومان`} tone={totalSub > 0 ? "down" : "default"} />
-        <Metric label="جمع خالص پرداختی" value={`${money(totalNet)} تومان`} tone="up" />
+        <Metric label="جمع مانده قابل پرداخت" value={`${money(totalNet)} تومان`} tone="up" />
         <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2.5">
           <div className="text-[10px] font-medium text-zinc-500">وضعیت صدور</div>
           <div className="mt-1 flex flex-wrap gap-1">
@@ -154,7 +154,7 @@ export default async function PayrollPage({
                         </div>
                       </div>
                       <div className="text-end">
-                        <div className="text-[9.5px] text-zinc-400">خالص پرداختی</div>
+                        <div className="text-[9.5px] text-zinc-400">مانده قابل پرداخت</div>
                         <div className="text-[19px] font-extrabold tracking-tight text-zinc-900">
                           {money(b.net)}
                           <span className="ms-1 text-[9px] font-semibold text-zinc-400">تومان</span>
@@ -163,7 +163,7 @@ export default async function PayrollPage({
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-1.5 text-center">
-                      <PayCell label="پایه" value={money(b.base)} />
+                      <PayCell label="حقوق کسب‌شده" value={money(b.base)} />
                       <PayCell label="افزایش‌ها" value={`+${money(b.additions)}`} tone="up" hidden={b.additions === 0} />
                       <PayCell label="کسورات" value={`−${money(b.subtractions)}`} tone="down" hidden={b.subtractions === 0} />
                       <PayCell label="اضافه‌کاری" value={hm(b.overtimeMin)} hidden={b.overtimeMin === 0} />
@@ -208,7 +208,7 @@ export default async function PayrollPage({
 
                     {/* حالت چاپ: خلاصه */}
                     <div className="hidden print:block text-[11px] leading-6">
-                      پایه {money(b.base)} + افزایش {money(b.additions)} − کسورات {money(b.subtractions)} = خالص {money(b.net)} تومان
+                      حقوق کسب‌شده {money(b.base)} + افزایش {money(b.additions)} − کسورات {money(b.subtractions)} = خالص {money(b.net)} تومان
                     </div>
                   </div>
                 </Card>
@@ -220,7 +220,7 @@ export default async function PayrollPage({
           <div className="mt-4 flex items-center justify-between rounded-2xl bg-zinc-900 px-5 py-4 text-white print-area">
             <div className="flex items-center gap-2 text-[13px] font-bold">
               <Banknote className="size-4" />
-              جمع خالص پرداختی {monthLabel(jy, jm)} — {rows.length} نفر
+              جمع مانده قابل پرداخت {monthLabel(jy, jm)} — {rows.length} نفر
             </div>
             <div className="text-[22px] font-extrabold tracking-tight">
               {money(totalNet)} <span className="text-[11px] font-semibold text-zinc-300">تومان</span>
