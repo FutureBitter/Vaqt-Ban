@@ -503,7 +503,7 @@ export function LeaveButton({
 const ADJ_KINDS = [
   { k: "bonus", label: "افزایش / پاداش", cls: "bg-emerald-500 text-white" },
   { k: "deduction", label: "کسورات", cls: "bg-rose-500 text-white" },
-  { k: "advance", label: "مساعده / وام", cls: "bg-amber-500 text-white" },
+  { k: "advance", label: "پرداخت حقوق / مساعده", cls: "bg-amber-500 text-white" },
 ] as const;
 
 export function AdjustmentButton({
@@ -549,7 +549,7 @@ export function AdjustmentButton({
         آیتم مالی
       </button>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalHeader title="ثبت آیتم مالی" desc="پاداش، کسورات، مساعده — در فیش همان ماه جلالی لحاظ می‌شود" onClose={() => setOpen(false)} />
+        <ModalHeader title="ثبت آیتم مالی" desc="پاداش، کسورات و پرداخت علی‌الحساب حقوق — در جمع همان ماه جلالی لحاظ می‌شود" onClose={() => setOpen(false)} />
         <div className="space-y-4 px-5 py-5">
           {!lockEmployeeId && (
             <div>
@@ -584,10 +584,10 @@ export function AdjustmentButton({
             </div>
             <div>
               <span className="label">عنوان</span>
-              <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="حق مسکن" />
+              <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={kind === "advance" ? "پرداخت حقوق امروز" : "مثلاً حق مسکن"} />
             </div>
           </div>
-          <JalaliDateField label="تاریخ تخصیص" value={date} onChange={setDate} />
+          <JalaliDateField label="تاریخ پرداخت / تخصیص" value={date} onChange={setDate} />
         </div>
         <div className="flex justify-end gap-2 border-t border-zinc-100 px-5 py-4">
           <button onClick={() => setOpen(false)} className="btn btn-ghost">انصراف</button>
