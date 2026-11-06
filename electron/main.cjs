@@ -69,6 +69,29 @@ function ensureConfigFile() {
   }
 }
 
+function backupEmbeddedDatabase(dataDir) {
+  try {
+    if (!fs.existsSync(dataDir) || fs.readdirSync(dataDir).length === 0) return;
+    const backupRoot = path.join(app.getPath("userData"), "db-backups");
+    fs.mkdirSync(backupRoot, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const destination = path.join(backupRoot, `pgdata-${stamp}`);
+    fs.cpSync(dataDir, destination, { recursive: true, errorOnExist: true });
+
+    // فقط ۱۰ نسخه پشتیبان اخیر نگهداری می‌شود تا فضای دیسک بی‌دلیل پر نشود.
+    const backups = fs.readdirSync(backupRoot)
+      .filter((name) => name.startsWith("pgdata-"))
+      .sort()
+      .reverse();
+    for (const old of backups.slice(10)) {
+      fs.rmSync(path.join(backupRoot, old), { recursive: true, force: true });
+    }
+  } catch (err) {
+    // خطای پشتیبان‌گیری نباید مانع اجرای برنامه یا دسترسی به دیتابیس شود.
+    console.error("[vaqtban] database backup failed:", err);
+  }
+}
+
 function standaloneDir() {
   // در حالت نصب‌شده، فایل‌ها خام در resources/app هستند (asar خاموش)
   const base = app.isPackaged
@@ -98,6 +121,7 @@ function startServer() {
   }
 
   ensureConfigFile();
+  if (!externalDb) backupEmbeddedDatabase(dataDir);
 
   const env = {
     ...process.env,
