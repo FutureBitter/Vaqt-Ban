@@ -5,7 +5,7 @@ copyright: "Vaqtban HR Suite"
 # بدون نیاز به ویرایش package.json؛ فراداده دسکتاپ اینجاست
 extraMetadata:
   name: vaqtban-desktop
-  version: 1.0.0
+  version: 1.2.0
   description: "Vaqtban — Persian HR attendance & payroll suite (desktop)"
   author: Vaqtban
   main: electron/main.cjs
@@ -34,6 +34,7 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
   createDesktopShortcut: true
   shortcutName: "وقت‌بان"
   installerIcon: build/icon.png
