@@ -79,7 +79,7 @@ export function computeDay(opts: {
   const isWorkday = !!sd?.isWorkday;
   const startMin = sd?.startMin ?? 0;
   const endMin = sd?.endMin ?? 0;
-  const expectedMin = isWorkday ? Math.max(0, endMin - startMin) : 0;
+  const expectedMin = isWorkday ? (endMin <= startMin ? 1440 - startMin + endMin : endMin - startMin) : 0;
 
   const daySessions = opts.sessions.filter((s) => s.date === opts.date);
   const workSessions = daySessions
@@ -92,7 +92,7 @@ export function computeDay(opts: {
   const dur = (s: SessionLite): number => {
     if (s.endMs != null) return Math.max(0, Math.round((s.endMs - s.startMs) / 60000));
     // جلسه باز: فقط برای «امروز» تا همین لحظه حساب می‌شود
-    if (opts.isToday) return Math.max(0, Math.round((opts.nowMs - s.startMs) / 60000));
+    if (opts.isToday || s.startMs <= opts.nowMs) return Math.max(0, Math.round((opts.nowMs - s.startMs) / 60000));
     return 0;
   };
 
@@ -137,8 +137,9 @@ export function computeDay(opts: {
     lastOut != null &&
     workSessions.length > 0
   ) {
-    const outMin = minutesOfDay(lastOut);
-    if (outMin < endMin - grace) earlyMin = endMin - outMin;
+    const outMin = minutesFromDateStart(lastOut, opts.date);
+    const scheduledEndMin = endMin <= startMin ? endMin + 1440 : endMin;
+    if (outMin < scheduledEndMin - grace) earlyMin = scheduledEndMin - outMin;
   }
 
   // اضافه‌کاری: خالص کارکرد بیش از موظفی (در روز تعطیل، کل کارکرد)
@@ -172,6 +173,12 @@ export function computeDay(opts: {
 function minutesOfDay(ms: number): number {
   const d = new Date(ms);
   return d.getHours() * 60 + d.getMinutes();
+}
+
+function minutesFromDateStart(ms: number, date: string): number {
+  const [year, month, day] = date.split("-").map(Number);
+  const midnight = new Date(year, month - 1, day).getTime();
+  return Math.round((ms - midnight) / 60000);
 }
 
 /* ─────────────────────────── محاسبه ماه ─────────────────────────── */
