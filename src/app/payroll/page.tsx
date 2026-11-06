@@ -165,9 +165,10 @@ export default async function PayrollPage({
                     <div className="mt-3 flex flex-wrap gap-1.5 text-center">
                       <PayCell label="حقوق کسب‌شده" value={money(b.base)} />
                       <PayCell label="افزایش‌ها" value={`+${money(b.additions)}`} tone="up" hidden={b.additions === 0} />
-                      <PayCell label="کسورات" value={`−${money(b.subtractions)}`} tone="down" hidden={b.subtractions === 0} />
+                      <PayCell label="کسورات" value={`−${money(b.absenceDed + b.lostDed + b.deductionSum)}`} tone="down" hidden={b.absenceDed + b.lostDed + b.deductionSum === 0} />
+                      <PayCell label="پرداخت قبلی" value={`−${money(b.advanceSum)}`} tone="down" hidden={b.advanceSum === 0} />
                       <PayCell label="اضافه‌کاری" value={hm(b.overtimeMin)} hidden={b.overtimeMin === 0} />
-                      {b.additions === 0 && b.subtractions === 0 && b.overtimeMin === 0 && (
+                      {b.additions === 0 && b.absenceDed + b.lostDed + b.deductionSum === 0 && b.advanceSum === 0 && b.overtimeMin === 0 && (
                         <div className="grid flex-[3] place-items-center rounded-lg bg-zinc-50 text-[10.5px] text-zinc-400">
                           بدون افزایش یا کسری
                         </div>
