@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { Save, Loader2, DatabaseBackup, Info } from "lucide-react";
-import { Switch } from "./widgets";
 import { toast } from "./Shell";
 import { saveSettings, reseedDemo, type SettingsInput } from "@/server/actions";
 import { Card, CardHeader } from "./ui";
@@ -13,7 +12,6 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
   const [hoursPerMonth, setHoursPerMonth] = useState(String(initial.hoursPerMonth));
   const [overtimeMultiplier, setOvertimeMultiplier] = useState(String(initial.overtimeMultiplier));
   const [graceMinutes, setGraceMinutes] = useState(String(initial.graceMinutes));
-  const [deductLostTime, setDeductLostTime] = useState(initial.deductLostTime);
   const [pending, start] = useTransition();
 
   const submit = () =>
@@ -24,7 +22,7 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
         hoursPerMonth: Number(hoursPerMonth) || 220,
         overtimeMultiplier: Number(overtimeMultiplier) || 140,
         graceMinutes: Number(graceMinutes) || 0,
-        deductLostTime,
+        deductLostTime: true,
       });
       toast(res.ok, res.message);
     });
@@ -40,7 +38,7 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
       </Card>
 
       <Card>
-        <CardHeader title="قواعد محاسبه حقوق" desc="مبنای تبدیل حقوق ماهانه به نرخ روزانه و ساعتی" />
+        <CardHeader title="قواعد محاسبه حقوق" desc="حقوق پایه به نسبت زمان کارکرد واقعی هر روز محاسبه می‌شود؛ اضافه‌کاری جداگانه افزوده خواهد شد." />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <span className="label">مبنای روزهای ماه (نرخ روزانه = حقوق ÷)</span>
@@ -59,19 +57,15 @@ export function SettingsForm({ initial }: { initial: SettingsInput }) {
             <input className="input" inputMode="numeric" value={graceMinutes} onChange={(e) => setGraceMinutes(e.target.value.replace(/[^0-9]/g, ""))} />
           </div>
         </div>
-        <label className="mt-4 flex cursor-pointer items-center gap-2 text-[12.5px] font-medium text-zinc-600">
-          <Switch checked={deductLostTime} onChange={setDeductLostTime} />
-          کسر تاخیر، تعجیل و خروج‌های موقت از حقوق (به نرخ ساعتی)
-        </label>
       </Card>
 
       <Card>
         <CardHeader title="راهنمای محاسبات" />
         <ul className="space-y-1.5 text-[12px] leading-6 text-zinc-600">
-          <Li>تاخیر = ورود بعد از شروع شیفت + فرصت ارفاق؛ تعجیل = خروج قبل از پایان شیفت − فرصت</Li>
+          <Li>حقوق کسب‌شده = نرخ روزانه × نسبت زمان کارکرد خالص به زمان موظفی همان روز؛ حضور کامل، حقوق کامل روزانه دارد</Li>
           <Li>اضافه‌کاری = کارکرد خالص بیشتر از ساعت موظفی همان روز (در روز تعطیل، کل کارکرد)</Li>
-          <Li>مرخصی ساعتی تا سقف مقدار خودش، کسر زمان را پوشش می‌دهد؛ مرخصی روزانه، روز با حقوق است</Li>
-          <Li>مبالغ «افزایش، کسری و مساعده» بر اساس ماه جلالیِ تاریخ تخصیص در همان فیش لحاظ می‌شوند</Li>
+          <Li>مرخصی روزانه باحقوق، یک روز کامل محاسبه می‌شود؛ مرخصی ساعتی در کارکرد و حقوق همان روز لحاظ می‌شود</Li>
+          <Li>پرداخت‌های علی‌الحساب با نوع «پرداخت حقوق / مساعده» و تاریخ واقعی پرداخت ثبت می‌شوند و از مانده قابل پرداخت همان ماه کم می‌شوند</Li>
           <Li>ساعات موظفی رایج: ۱۷۶، ۱۹۱ یا ۲۲۰ (قابل تغییر در بالا)</Li>
         </ul>
         <div className="mt-4 flex justify-end">
