@@ -14,7 +14,7 @@ import {
   type Adjustment,
   type Leave,
 } from "@/db/schema";
-import { and, asc, desc, eq, gte, lte, sql, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql, isNull, or } from "drizzle-orm";
 import {
   jalaliMonthDays,
   jalaliMonthRange,
@@ -312,7 +312,7 @@ export async function getTodayOverview(): Promise<{
     getSettings(),
     listEmployees(false),
     getAllScheduleMaps(),
-    db.select().from(timeSessions).where(eq(timeSessions.date, today)),
+    db.select().from(timeSessions).where(or(eq(timeSessions.date, today), isNull(timeSessions.endAt))),
     db.select().from(leavesT).where(eq(leavesT.date, today)),
   ]);
   const sSettings = toEngineSettings(settings);
@@ -326,7 +326,15 @@ export async function getTodayOverview(): Promise<{
       isFuture: false,
       isToday: true,
       schedule: schedules.get(e.id) ?? defaultScheduleMap(),
-      sessions: sessions.filter((s) => s.employeeId === e.id).map(sessionToLite),
+      sessions: sessions.filter((s) => s.employeeId === e.id).map((s) => {
+        const lite = sessionToLite(s);
+        if (s.date < today && s.endAt == null) {
+          const [y, m, d] = today.split("-").map(Number);
+          lite.date = today;
+          lite.startMs = Math.max(lite.startMs, new Date(y, m - 1, d).getTime());
+        }
+        return lite;
+      }),
       leaves: lv.filter((l) => l.employeeId === e.id).map(leaveToLite),
       grace: sSettings.graceMinutes,
       nowMs: Date.now(),
