@@ -45,7 +45,7 @@ export default async function PayrollPage({
     [
       "کد", "نام", "حقوق کسب‌شده", "حضور (روز)", "غیبت (روز)", "مرخصی",
       "کارکرد خالص (دقیقه)", "اضافه‌کاری (دقیقه)", "مبلغ اضافه‌کاری",
-      "کسر زمان (دقیقه)", "مبلغ کسر زمان", "کسر غیبت", "افزایش‌ها", "کسورات", "مساعده", "خالص", "وضعیت",
+      "کسر زمان (دقیقه)", "مبلغ کسر زمان", "کسر غیبت", "افزایش‌ها", "کسورات", "پرداخت علی‌الحساب", "مانده قابل پرداخت", "وضعیت",
     ],
     ...rows.map((r) => [
       r.employee.code,
@@ -85,7 +85,7 @@ export default async function PayrollPage({
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Metric label="جمع حقوق کسب‌شده" value={`${money(totalBase)} تومان`} />
         <Metric label="جمع افزایش‌ها (اضافه‌کاری و پاداش)" value={`${money(totalAdd)} تومان`} tone="up" />
-        <Metric label="جمع کسورات" value={`${money(totalSub)} تومان`} tone={totalSub > 0 ? "down" : "default"} />
+        <Metric label="جمع کسورات و پرداخت‌های قبلی" value={`${money(totalSub)} تومان`} tone={totalSub > 0 ? "down" : "default"} />
         <Metric label="جمع مانده قابل پرداخت" value={`${money(totalNet)} تومان`} tone="up" />
         <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2.5">
           <div className="text-[10px] font-medium text-zinc-500">وضعیت صدور</div>
@@ -232,9 +232,9 @@ export default async function PayrollPage({
       <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-zinc-200 bg-white/60 px-4 py-3 text-[11px] text-zinc-500 no-print">
         <span className="flex items-center gap-1.5 font-bold text-zinc-600"><Wallet className="size-4" /> قواعد:</span>
         <span className="flex items-center gap-1"><TrendingUp className="size-3.5 text-emerald-500" /> اضافه‌کاری = نرخ ساعتی × {settings.overtimeMultiplier}٪</span>
-        <span>نرخ ساعتی = حقوق پایه ÷ {settings.hoursPerMonth} ساعت</span>
-        <span>نرخ روزانه = حقوق پایه ÷ {settings.daysPerMonth} روز</span>
-        <span className="flex items-center gap-1"><TrendingDown className="size-3.5 text-rose-500" /> کسر زمان بر اساس تاخیر، تعجیل و خروج موقت</span>
+        <span>نرخ ساعتی اضافه‌کاری = حقوق پایه ÷ {settings.hoursPerMonth} ساعت</span>
+        <span>حقوق روزانه کامل = حقوق پایه ÷ {settings.daysPerMonth} روز</span>
+        <span className="flex items-center gap-1"><TrendingDown className="size-3.5 text-rose-500" /> حقوق پایه متناسب با کارکرد واقعی هر روز</span>
       </div>
     </div>
   );
