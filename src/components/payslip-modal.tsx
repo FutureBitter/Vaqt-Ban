@@ -41,7 +41,7 @@ export interface AdjItem {
 const ADJ_LABEL: Record<string, string> = {
   bonus: "افزایش",
   deduction: "کسری",
-  advance: "مساعده",
+  advance: "پرداخت علی‌الحساب",
 };
 
 export function PayslipButton({
@@ -184,7 +184,7 @@ export function PayslipButton({
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="overflow-hidden rounded-xl border border-zinc-300">
                 <div className="bg-emerald-700 px-3 py-1.5 text-[11.5px] font-extrabold text-white">حقوق و مزایا (تومان)</div>
-                <SlipRow k="حقوق پایه" v={b.base} strong />
+                <SlipRow k="حقوق کسب‌شده بر اساس کارکرد" v={b.base} strong />
                 {b.overtimePay > 0 && <SlipRow k={`اضافه‌کاری (${hm(b.overtimeMin)})`} v={b.overtimePay} />}
                 {bonuses.map((a) => (
                   <SlipRow key={a.id} k={`${a.title} (${ADJ_LABEL.bonus})`} v={a.amount} />
@@ -216,7 +216,7 @@ export function PayslipButton({
 
             {/* خالص */}
             <div className="mt-4 flex items-center justify-between rounded-xl border-2 border-zinc-900 bg-zinc-900 px-4 py-3 text-white">
-              <div className="text-[13px] font-bold">خالص قابل پرداخت</div>
+              <div className="text-[13px] font-bold">مانده قابل پرداخت</div>
               <div className="text-[20px] font-extrabold tracking-tight">{money(b.net)} <span className="text-[11px] font-semibold text-zinc-300">تومان</span></div>
             </div>
 
