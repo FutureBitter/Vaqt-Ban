@@ -187,24 +187,13 @@ export async function saveSchedule(employeeId: number, rows: ScheduleRowInput[])
 
 /* ═══════════════════════ ثبت تردد ═══════════════════════ */
 
-async function closeStaleSessions(employeeId: number, now: Date, todayS: string) {
-  const opens = await db
+async function closeStaleSessions(employeeId: number, _now: Date, _todayS: string) {
+  // شیفت باز با عبور از نیمه‌شب نباید خودکار بسته یا صفر شود.
+  return db
     .select()
     .from(timeSessions)
     .where(and(eq(timeSessions.employeeId, employeeId), isNull(timeSessions.endAt)))
     .orderBy(asc(timeSessions.startAt));
-  for (const s of opens) {
-    if (s.date < todayS) {
-      await db
-        .update(timeSessions)
-        .set({
-          endAt: s.startAt,
-          note: [s.note, "بسته‌شده خودکار (فراموشی ثبت خروج)"].filter(Boolean).join(" — "),
-        })
-        .where(eq(timeSessions.id, s.id));
-    }
-  }
-  return opens.filter((s) => s.date === todayS);
 }
 
 export async function punchIn(employeeId: number): Promise<ActionResult> {
@@ -213,7 +202,7 @@ export async function punchIn(employeeId: number): Promise<ActionResult> {
     const todayS = localDateStr(now);
     const opensToday = await closeStaleSessions(employeeId, now, todayS);
     if (opensToday.some((s) => s.kind === "work"))
-      return fail("برای امروز یک ورود باز ثبت شده است؛ ابتدا خروج را بزنید");
+      return fail("یک شیفت باز دارید؛ ابتدا خروج شیفت قبلی را ثبت کنید");
     await db.insert(timeSessions).values({
       employeeId,
       kind: "work",
@@ -236,10 +225,10 @@ export async function punchOut(employeeId: number): Promise<ActionResult> {
       .select()
       .from(timeSessions)
       .where(and(eq(timeSessions.employeeId, employeeId), isNull(timeSessions.endAt)));
-    const openWork = opens.filter((s) => s.kind === "work" && s.date === todayS);
-    if (openWork.length === 0) return fail("ورود بازی برای امروز وجود ندارد");
+    const openWork = opens.filter((s) => s.kind === "work");
+    if (openWork.length === 0) return fail("ورود بازی برای ثبت خروج وجود ندارد");
     // بستن خروج موقت باز در صورت وجود
-    for (const s of opens.filter((o) => o.kind === "exit" && o.date === todayS)) {
+    for (const s of opens.filter((o) => o.kind === "exit")) {
       await db.update(timeSessions).set({ endAt: now }).where(eq(timeSessions.id, s.id));
     }
     for (const s of openWork) {
@@ -312,9 +301,8 @@ export interface ManualSessionInput {
 export async function addManualSession(input: ManualSessionInput): Promise<ActionResult> {
   try {
     const startMs = dateTimeMs(input.date, input.startTime);
-    const endMs = input.endTime ? dateTimeMs(input.date, input.endTime) : null;
-    if (endMs != null && endMs <= startMs)
-      return fail("ساعت پایان باید بعد از ساعت شروع باشد");
+    let endMs = input.endTime ? dateTimeMs(input.date, input.endTime) : null;
+    if (endMs != null && endMs <= startMs) endMs += 24 * 60 * 60 * 1000;
     await db.insert(timeSessions).values({
       employeeId: input.employeeId,
       kind: input.kind,
